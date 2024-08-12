@@ -1,7 +1,7 @@
 {
-    "name": "spryker-shop/otel-shop-application-application",
+    "name": "spryker-shop/otel-shop-application-instrumentation",
     "type": "library",
-    "description": "OtelShopApplicationApplication module",
+    "description": "OtelShopApplicationInstrumentation module",
     "license": "proprietary",
     "require": {
         "open-telemetry/api": "^1.0",
