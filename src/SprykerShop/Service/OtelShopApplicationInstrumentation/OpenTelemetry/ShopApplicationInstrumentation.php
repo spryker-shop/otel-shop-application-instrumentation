@@ -10,6 +10,7 @@ namespace SprykerShop\Service\OtelShopApplicationInstrumentation\OpenTelemetry;
 use Exception;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\API\Trace\Span;
+use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\Context;
@@ -50,6 +51,7 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
         CachedInstrumentationInterface $instrumentation,
         RequestProcessorInterface $request
     ): void {
+        // phpcs:disable
         hook(
             class: YvesBootstrap::class,
             function: static::METHOD_NAME,
@@ -84,16 +86,18 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
                 static::handleError($scope);
             },
         );
+        // phpcs:enable
     }
 
     /**
      * @param \OpenTelemetry\Context\ContextStorageScopeInterface $scope
      *
-     * @return \OpenTelemetry\API\Trace\Span
+     * @return \OpenTelemetry\API\Trace\SpanInterface
      */
-    protected static function handleError(ContextStorageScopeInterface $scope): Span
+    protected static function handleError(ContextStorageScopeInterface $scope): SpanInterface
     {
         $error = error_get_last();
+        $exception = null;
 
         if (is_array($error) && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE], true)) {
             $exception = new Exception(
@@ -104,13 +108,13 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
         $scope->detach();
         $span = Span::fromContext($scope->context());
 
-        if (isset($exception)) {
+        if ($exception !== null) {
             $span->recordException($exception);
         }
 
-        $span->setAttribute(static::ERROR_MESSAGE, isset($exception) ? $exception->getMessage() : '');
-        $span->setAttribute(static::ERROR_CODE, isset($exception) ? $exception->getCode() : '');
-        $span->setStatus(isset($exception) ? StatusCode::STATUS_ERROR : StatusCode::STATUS_OK);
+        $span->setAttribute(static::ERROR_MESSAGE, $exception !== null ? $exception->getMessage() : '');
+        $span->setAttribute(static::ERROR_CODE, $exception !== null ? $exception->getCode() : '');
+        $span->setStatus($exception !== null ? StatusCode::STATUS_ERROR : StatusCode::STATUS_OK);
 
         $span->end();
 

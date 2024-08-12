@@ -14,14 +14,16 @@
         "spryker-shop/shop-application": "^1.9.0"
     },
     "require-dev": {
-        "open-telemetry/sdk": "*"
-    },
-    "suggest": {
+        "phpstan/phpstan": "*",
+        "spryker/code-sniffer": "*"
     },
     "autoload": {
         "psr-4": {
             "SprykerShop\\": "src/SprykerShop/"
-        }
+        },
+        "files": [
+            "_register.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -30,10 +32,6 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "scripts": {
-        "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
-        "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/"
-    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
@@ -44,5 +42,20 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
-    }
+    },
+    "authors": [
+        {
+            "name": "Spryker",
+            "homepage": "https://spryker.com"
+        }
+    ],
+    "scripts": {
+        "cs-check": "phpcs --colors -p -s --extensions=php --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml --ignore=/tests/_data/,/_support/ src/ tests/",
+        "cs-fix": "phpcbf --colors -p --extensions=php --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml --ignore=/tests/_data/,/_support/ src/ tests/",
+        "phpstan": "phpstan analyze",
+        "test": "codecept build && codecept run"
+    },
+    "include-path": [
+        "src/"
+    ]
 }
