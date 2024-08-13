@@ -42,6 +42,22 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
     protected const YVES_TRACE_ID = 'yves_trace_id';
 
     /**
+     * @var string
+     */
+    protected const ERROR_MESSAGE = 'error_message';
+
+    /**
+     * @var string
+     */
+    protected const ERROR_CODE = 'error_code';
+
+    /**
+     * @var string
+     */
+    protected const ERROR_TEXT_PLACEHOLDER = 'Error: %s in %s on line %d';
+
+
+    /**
      * @param \Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentationInterface $instrumentation
      * @param \Spryker\Shared\Opentelemetry\Request\RequestProcessorInterface $request
      *

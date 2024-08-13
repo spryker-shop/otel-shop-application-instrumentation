@@ -20,5 +20,5 @@ interface ShopApplicationInstrumentationInterface
      *
      * @return void
      */
-    public function register(CachedInstrumentationInterface $instrumentation, RequestProcessorInterface $request): void;
+    public static function register(CachedInstrumentationInterface $instrumentation, RequestProcessorInterface $request): void;
 }
