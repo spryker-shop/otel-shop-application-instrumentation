@@ -9,8 +9,6 @@ namespace SprykerShop\Service\OtelShopApplicationInstrumentation\OpenTelemetry;
 
 use Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentationInterface;
 use Spryker\Shared\Opentelemetry\Request\RequestProcessorInterface;
-use Spryker\Zed\Opentelemetry\Business\Generator\Instrumentation\CachedInstrumentation;
-use Symfony\Component\HttpFoundation\Request;
 
 interface ShopApplicationInstrumentationInterface
 {

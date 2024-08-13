@@ -18,7 +18,6 @@ use OpenTelemetry\Context\ContextStorageScopeInterface;
 use OpenTelemetry\SemConv\TraceAttributes;
 use Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentationInterface;
 use Spryker\Shared\Opentelemetry\Request\RequestProcessorInterface;
-use Spryker\Zed\Opentelemetry\Business\Generator\Instrumentation\CachedInstrumentation;
 use SprykerShop\Yves\ShopApplication\Bootstrap\YvesBootstrap;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -56,7 +55,6 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
      */
     protected const ERROR_TEXT_PLACEHOLDER = 'Error: %s in %s on line %d';
 
-
     /**
      * @param \Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentationInterface $instrumentation
      * @param \Spryker\Shared\Opentelemetry\Request\RequestProcessorInterface $request
@@ -72,6 +70,10 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
             class: YvesBootstrap::class,
             function: static::METHOD_NAME,
             pre: static function ($instance, array $params, string $class, string $function, ?string $filename, ?int $lineno) use ($instrumentation, $request): void {
+                if ($instrumentation::getCachedInstrumentation() === null || $request->getRequest() === null) {
+                    return;
+                }
+
                 if (!defined('OTEL_YVES_TRACE_ID')) {
                     define('OTEL_YVES_TRACE_ID', uuid_create());
                 }

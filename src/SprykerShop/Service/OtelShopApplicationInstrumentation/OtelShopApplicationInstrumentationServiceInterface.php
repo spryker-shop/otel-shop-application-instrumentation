@@ -5,7 +5,7 @@
  * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
  */
 
-namespace SprykerShop\Service\OtelShopApplicationInstrumentationService;
+namespace SprykerShop\Service\OtelShopApplicationInstrumentation;
 
 interface OtelShopApplicationInstrumentationServiceInterface
 {
