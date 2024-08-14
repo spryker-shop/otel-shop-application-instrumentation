@@ -18,13 +18,12 @@ use OpenTelemetry\Context\ContextStorageScopeInterface;
 use OpenTelemetry\SemConv\TraceAttributes;
 use Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentationInterface;
 use Spryker\Shared\Opentelemetry\Request\RequestProcessorInterface;
-use Spryker\Zed\Application\Communication\Bootstrap\BackendGatewayBootstrap;
 use SprykerShop\Yves\ShopApplication\Bootstrap\YvesBootstrap;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 use function OpenTelemetry\Instrumentation\hook;
 
-class ShopApplicationInstrumentation implements ShopApplicationInstrumentationInterface
+class ShopApplicationInstrumentation
 {
     /**
      * @var string
@@ -107,46 +106,6 @@ class ShopApplicationInstrumentation implements ShopApplicationInstrumentationIn
             },
         );
         // phpcs:enable
-
-        hook(
-            class: BackendGatewayBootstrap::class,
-            function: static::METHOD_NAME,
-            pre: static function ($instance, array $params, string $class, string $function, ?string $filename, ?int $lineno) use ($instrumentation, $request): void {
-                if ($instrumentation::getCachedInstrumentation() === null || $request->getRequest() === null) {
-                    return;
-                }
-
-                if (!defined('OTEL_BACKEND_GATEWAY_TRACE_ID')) {
-                    define('OTEL_BACKEND_GATEWAY_TRACE_ID', uuid_create());
-                }
-
-                $input = ['backend_gateway_trace_id' => OTEL_BACKEND_GATEWAY_TRACE_ID];
-                TraceContextPropagator::getInstance()->inject($input);
-
-                $span = $instrumentation::getCachedInstrumentation()
-                    ->tracer()
-                    ->spanBuilder(static::formatSpanName($request->getRequest()))
-                    ->setSpanKind(SpanKind::KIND_SERVER)
-                    ->setAttribute(TraceAttributes::CODE_FUNCTION, $function)
-                    ->setAttribute(TraceAttributes::CODE_NAMESPACE, $class)
-                    ->setAttribute(TraceAttributes::CODE_FILEPATH, $filename)
-                    ->setAttribute(TraceAttributes::CODE_LINENO, $lineno)
-                    ->setAttribute(TraceAttributes::URL_QUERY, $request->getRequest()->getQueryString())
-                    ->startSpan();
-                $span->activate();
-
-                Context::storage()->attach($span->storeInContext(Context::getCurrent()));
-            },
-            post: static function ($instance, array $params, $returnValue, ?Throwable $exception): void {
-                $scope = Context::storage()->scope();
-
-                if ($scope === null) {
-                    return;
-                }
-
-                static::handleError($scope);
-            },
-        );
     }
 
     /**
