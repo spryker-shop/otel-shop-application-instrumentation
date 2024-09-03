@@ -18,6 +18,7 @@ use OpenTelemetry\Context\ContextStorageScopeInterface;
 use OpenTelemetry\SemConv\TraceAttributes;
 use Spryker\Shared\Opentelemetry\Instrumentation\CachedInstrumentation;
 use Spryker\Shared\Opentelemetry\Request\RequestProcessor;
+use Spryker\Zed\Opentelemetry\Business\Generator\SpanFilter\SamplerSpanFilter;
 use SprykerShop\Yves\ShopApplication\Bootstrap\YvesBootstrap;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
@@ -67,6 +68,7 @@ class ShopApplicationInstrumentation
             class: YvesBootstrap::class,
             function: static::METHOD_NAME,
             pre: static function ($instance, array $params, string $class, string $function, ?string $filename, ?int $lineno) use ($request): void {
+                putenv('OTEL_SERVICE_NAME=YVES');
                 $instrumentation = CachedInstrumentation::getCachedInstrumentation();
                 if ($instrumentation === null || $request->getRequest() === null) {
                     return;
@@ -101,6 +103,7 @@ class ShopApplicationInstrumentation
                 }
 
                 $span = static::handleError($scope);
+                SamplerSpanFilter::filter($span, true);
             },
         );
         // phpcs:enable
