@@ -60,15 +60,15 @@ class ShopApplicationInstrumentation
      */
     public static function register(): void
     {
-        $instrumentation = new CachedInstrumentation();
         $request = new RequestProcessor();
 
         // phpcs:disable
         hook(
             class: YvesBootstrap::class,
             function: static::METHOD_NAME,
-            pre: static function ($instance, array $params, string $class, string $function, ?string $filename, ?int $lineno) use ($instrumentation, $request): void {
-                if ($instrumentation::getCachedInstrumentation() === null || $request->getRequest() === null) {
+            pre: static function ($instance, array $params, string $class, string $function, ?string $filename, ?int $lineno) use ($request): void {
+                $instrumentation = CachedInstrumentation::getCachedInstrumentation();
+                if ($instrumentation === null || $request->getRequest() === null) {
                     return;
                 }
 
@@ -79,7 +79,7 @@ class ShopApplicationInstrumentation
                 $input = [static::YVES_TRACE_ID => OTEL_YVES_TRACE_ID];
                 TraceContextPropagator::getInstance()->inject($input);
 
-                $span = $instrumentation::getCachedInstrumentation()
+                $span = $instrumentation
                     ->tracer()
                     ->spanBuilder(static::formatSpanName($request->getRequest()))
                     ->setSpanKind(SpanKind::KIND_SERVER)
@@ -100,7 +100,7 @@ class ShopApplicationInstrumentation
                     return;
                 }
 
-                static::handleError($scope);
+                $span = static::handleError($scope);
             },
         );
         // phpcs:enable
@@ -132,8 +132,6 @@ class ShopApplicationInstrumentation
         $span->setAttribute(static::ERROR_MESSAGE, $exception !== null ? $exception->getMessage() : '');
         $span->setAttribute(static::ERROR_CODE, $exception !== null ? $exception->getCode() : '');
         $span->setStatus($exception !== null ? StatusCode::STATUS_ERROR : StatusCode::STATUS_OK);
-
-        $span->end();
 
         return $span;
     }
