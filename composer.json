@@ -1,0 +1,50 @@
+{
+    "name": "spryker-shop/otel-shop-application-instrumentation",
+    "type": "library",
+    "description": "OtelShopApplicationInstrumentation package",
+    "license": "proprietary",
+    "require": {
+        "open-telemetry/api": "^1.0",
+        "open-telemetry/context": "^1.0",
+        "open-telemetry/sem-conv": "^1.0",
+        "php": ">=8.1",
+        "spryker/opentelemetry": "^0.1.0",
+        "spryker/symfony": "^3.0.0",
+        "spryker-shop/shop-application": "^1.9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SprykerShop\\": "src/SprykerShop/"
+        },
+        "files": [
+            "_register.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SprykerShopTest\\": "tests/SprykerShopTest/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "authors": [
+        {
+            "name": "Spryker",
+            "homepage": "https://spryker.com"
+        }
+    ],
+    "include-path": [
+        "src/"
+    ]
+}
