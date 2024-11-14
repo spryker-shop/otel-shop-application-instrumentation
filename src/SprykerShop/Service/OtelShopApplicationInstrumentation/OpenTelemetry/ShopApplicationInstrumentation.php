@@ -73,27 +73,21 @@ class ShopApplicationInstrumentation
                 if ($instrumentation === null || $request->getRequest() === null) {
                     return;
                 }
-
-                if (!defined('OTEL_YVES_TRACE_ID')) {
-                    define('OTEL_YVES_TRACE_ID', uuid_create());
-                }
-
-                $input = [static::YVES_TRACE_ID => OTEL_YVES_TRACE_ID];
-                TraceContextPropagator::getInstance()->inject($input);
+                $context = Context::getCurrent();
 
                 $span = $instrumentation
                     ->tracer()
                     ->spanBuilder(static::formatSpanName($request->getRequest()))
                     ->setSpanKind(SpanKind::KIND_SERVER)
+                    ->setParent($context)
                     ->setAttribute(TraceAttributes::CODE_FUNCTION, $function)
                     ->setAttribute(TraceAttributes::CODE_NAMESPACE, $class)
                     ->setAttribute(TraceAttributes::CODE_FILEPATH, $filename)
                     ->setAttribute(TraceAttributes::CODE_LINENO, $lineno)
                     ->setAttribute(TraceAttributes::URL_QUERY, $request->getRequest()->getQueryString())
                     ->startSpan();
-                $span->activate();
 
-                Context::storage()->attach($span->storeInContext(Context::getCurrent()));
+                Context::storage()->attach($span->storeInContext($context));
             },
             post: static function ($instance, array $params, $returnValue, ?Throwable $exception): void {
                 $scope = Context::storage()->scope();
@@ -103,7 +97,7 @@ class ShopApplicationInstrumentation
                 }
 
                 $span = static::handleError($scope);
-                SamplerSpanFilter::filter($span, true);
+                $span->end();
             },
         );
         // phpcs:enable
@@ -130,10 +124,10 @@ class ShopApplicationInstrumentation
 
         if ($exception !== null) {
             $span->recordException($exception);
+            $span->setAttribute(static::ERROR_MESSAGE, $exception->getMessage());
+            $span->setAttribute(static::ERROR_CODE, $exception->getCode());
         }
 
-        $span->setAttribute(static::ERROR_MESSAGE, $exception !== null ? $exception->getMessage() : '');
-        $span->setAttribute(static::ERROR_CODE, $exception !== null ? $exception->getCode() : '');
         $span->setStatus($exception !== null ? StatusCode::STATUS_ERROR : StatusCode::STATUS_OK);
 
         return $span;

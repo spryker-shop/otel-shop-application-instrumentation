@@ -7,7 +7,8 @@
         "open-telemetry/api": "^1.0",
         "open-telemetry/context": "^1.0",
         "open-telemetry/sem-conv": "^1.0",
-        "php": ">=8.1",
+        "open-telemetry/sdk": "^1.0",
+        "php": ">=8.2",
         "spryker/opentelemetry": "^0.1.0",
         "spryker/symfony": "^3.0.0",
         "spryker-shop/shop-application": "^1.9.0"
